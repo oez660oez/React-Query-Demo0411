@@ -36,7 +36,7 @@ export const useNewsRetrieve = (id: string) => {
 
 export const useNewsCreate = () => {
   return useMutation({
-    mutationFn: (data: News) => createNews(data),
+    mutationFn: (newsData: Omit<News, 'id'>) => createNews(newsData),
     onSuccess: () => {
       // 成功後重新獲取列表數據
       queryClient.invalidateQueries({ queryKey: queryKeys.list() });
@@ -46,11 +46,11 @@ export const useNewsCreate = () => {
 
 export const useNewsUpdate = (id: string) => {
   return useMutation({
-    mutationFn: (data: News) => updateNews(id, data),
-    onSuccess: (newData) => {
-      // 成功後更新查詢緩存
+    mutationFn: (newsData: News) => updateNews(newsData),
+    onSuccess: () => {
+      // 成功後重新獲取列表和詳情數據
       queryClient.invalidateQueries({ queryKey: queryKeys.list() });
-      queryClient.setQueryData(queryKeys.retrieve(id), newData);
+      queryClient.invalidateQueries({ queryKey: queryKeys.retrieve(id) });
     },
   });
 };

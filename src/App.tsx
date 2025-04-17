@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Button, 
@@ -9,10 +9,17 @@ import {
   Stack, 
   Text,
   VStack,
-  useToast
+  useToast,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  CloseButton
 } from '@chakra-ui/react';
 import { useNewsList, useNewsCreate, useNewsUpdate, useNewsDestroy, useNewsRetrieve } from './queries/news';
 import { News } from './models/news';
+import ApiStatusIndicator from './components/ApiStatusIndicator';
+import { isApiAvailable } from './api/instance';
 
 // NewsItem 組件
 const NewsItem = ({
@@ -99,8 +106,21 @@ const NewsItem = ({
 
 const App: React.FC = () => {
   const [currentId, setCurrentId] = useState<string>('');
+  const [apiConnected, setApiConnected] = useState<boolean | null>(null);
+  const [showApiAlert, setShowApiAlert] = useState(false);
   const toast = useToast();
   
+  // 檢查 API 連接狀態
+  useEffect(() => {
+    const checkApiStatus = async () => {
+      const isAvailable = await isApiAvailable();
+      setApiConnected(isAvailable);
+      setShowApiAlert(!isAvailable);
+    };
+    
+    checkApiStatus();
+  }, []);
+
   // 使用 React Query hooks
   const { data: newsList, isLoading: isLoadingList, refetch: refetchList } = useNewsList();
   const { data: currentNews } = useNewsRetrieve(currentId);
@@ -111,8 +131,7 @@ const App: React.FC = () => {
 
   // 處理新增新聞
   const handleAddNews = () => {
-    const newNews: News = {
-      id: crypto.randomUUID(),
+    const newNews = {
       date: '2024/4/15',
       category: '政策訊息',
       title: '新的文章標題',
@@ -143,7 +162,7 @@ const App: React.FC = () => {
   // 處理更新新聞
   const handleUpdateNews = (id: string) => {
     setCurrentId(id);
-    const updatedNews: News = {
+    const updatedNews = {
       id: id,
       date: '2024/4/16',
       category: '標案訊息',
@@ -209,10 +228,31 @@ const App: React.FC = () => {
       <VStack spacing={6} align="stretch">
         <Flex justify="space-between" align="center">
           <Heading size="lg">最新消息</Heading>
+          <ApiStatusIndicator />
+        </Flex>
+        
+        {showApiAlert && (
+          <Alert status="warning" mb={4}>
+            <AlertIcon />
+            <AlertTitle mr={2}>後端 API 連接失敗！</AlertTitle>
+            <AlertDescription>
+              無法連接到後端 API 伺服器，操作可能無法正常工作。請確保後端服務已啟動。
+            </AlertDescription>
+            <CloseButton
+              position="absolute"
+              right="8px"
+              top="8px"
+              onClick={() => setShowApiAlert(false)}
+            />
+          </Alert>
+        )}
+        
+        <Flex justify="flex-end">
           <Button 
             colorScheme="blue" 
             onClick={handleAddNews} 
             isLoading={newsCreate.isPending}
+            isDisabled={apiConnected === false}
           >
             新增消息
           </Button>

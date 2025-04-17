@@ -1,3 +1,44 @@
+# 新聞管理前端
+
+這是一個使用 React 建立的新聞管理系統前端，連接到後端 API。
+
+## 功能
+
+- 顯示新聞列表
+- 新增、更新、刪除新聞
+- 使用 React Query 進行 API 資料管理
+- 使用 Chakra UI 建立 UI 界面
+
+## 安裝和啟動
+
+### 安裝相依套件
+
+```bash
+npm install
+```
+
+### 啟動開發伺服器
+
+```bash
+npm start
+```
+
+這將在 http://localhost:3000 啟動前端應用。
+
+### 建立生產版本
+
+```bash
+npm run build
+```
+
+## 連接後端
+
+此前端預設連接到 http://localhost:3001 的後端 API。如需更改 API 伺服器地址，請修改 `src/api/instance.ts` 檔案中的 `baseURL` 設定。
+
+## 重要提示
+
+在啟動前端前，請確保後端伺服器 (my-app-api) 已經啟動並執行於 http://localhost:3001。否則將無法正常獲取或操作新聞資料。
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
